@@ -1,0 +1,33 @@
+org: intdev
+app: portfolio
+service: telegram-message
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-1
+  stage: dev
+  profile: intdev
+  environment:
+    telegramToken: ${self:custom.telegramToken}
+    telegramChatId: ${self:custom.telegramChatId}
+
+custom:
+  telegramToken: ${file(serverless.env.yml):telegram.token}
+  telegramChatId: ${file(serverless.env.yml):telegram.chatId}
+
+package:
+  individually: true
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+functions:
+  telegramMessage:
+    handler: lambdas/endpoints/telegramMessage.handler
+    events:
+      - http:
+          path: telegram/send
+          method: POST
+          cors: true
